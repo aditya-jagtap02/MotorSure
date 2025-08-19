@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#007bff" />
+    <meta name="description" content="Indian Vehicle Insurance Form - Enter your vehicle details" />
+    <title>Vehicle Details</title>
+    <link rel="stylesheet" href="cardetail.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+      function toggleOtherVehicleType() {
+        var vehicleSelect = document.getElementById("vehicle_type");
+        var otherVehicleInput = document.getElementById("other_vehicle");
+        if (vehicleSelect.value === "other") {
+          otherVehicleInput.style.display = "block";
+        } else {
+          otherVehicleInput.style.display = "none";
+        }
+      }
+
+      function validateRCNumber(input) {
+        const rcPattern = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$/;
+        if (!rcPattern.test(input.value)) {
+          input.setCustomValidity('Please enter a valid RC number (e.g., DL01AB1234)');
+        } else {
+          input.setCustomValidity('');
+        }
+      }
+
+      function validateChassisNumber(input) {
+        const chassisPattern = /^[A-Z0-9]{17}$/;
+        if (!chassisPattern.test(input.value)) {
+          input.setCustomValidity('Please enter a valid 17-character chassis number');
+        } else {
+          input.setCustomValidity('');
+        }
+      }
+
+      // Function to toggle profile visibility
+      function toggleProfile() {
+        const userInfo = document.getElementById('userInfo');
+        userInfo.classList.toggle('show');
+      }
+
+      // Close profile when clicking outside
+      document.addEventListener('click', function(event) {
+        const profileContainer = document.querySelector('.profile-container');
+        const userInfo = document.getElementById('userInfo');
+        if (!profileContainer.contains(event.target) && userInfo.classList.contains('show')) {
+          userInfo.classList.remove('show');
+        }
+      });
+
+      // Function to fetch and display user details
+      function loadUserDetails() {
+        fetch('get_user_details.php')
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              window.location.href = 'signin.html';
+              return;
+            }
+            document.getElementById('userName').textContent = data.name;
+            document.getElementById('userEmail').textContent = data.email;
+            document.getElementById('userPhone').textContent = data.mobileno;
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            window.location.href = 'signin.html';
+          });
+      }
+
+      // Load user details when page loads
+      window.onload = loadUserDetails;
+    </script>
+  </head>
+  <body>
+    <div class="profile-container">
+      <div class="profile-icon" onclick="toggleProfile()">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="user-info" id="userInfo">
+        <div class="user-details">
+          <div class="user-name">
+            <i class="fas fa-user"></i>
+            <span id="userName">Loading...</span>
+          </div>
+          <div class="user-email">
+            <i class="fas fa-envelope"></i>
+            <span id="userEmail">Loading...</span>
+          </div>
+          <div class="user-phone">
+            <i class="fas fa-phone"></i>
+            <span id="userPhone">Loading...</span>
+          </div>
+        </div>
+        <a href="logout.php" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>Vehicle Details</h1>
+      <form action="cardetail.php" method="POST" class="car-form">
+        <div class="form-group">
+          <label for="rc_number">Registration Number (RC):</label>
+          <input 
+            type="text" 
+            id="rc_number" 
+            name="rc_number" 
+            required 
+            placeholder="e.g., DL01AB1234"
+            oninput="validateRCNumber(this)"
+            pattern="[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}"
+          />
+          <small class="help-text">Format: State Code + District Code + Series + Number</small>
+        </div>
+
+        <div class="form-group">
+          <label for="make_model">Make and Model:</label>
+          <input type="text" id="make_model" name="make_model" required placeholder="e.g., Maruti Suzuki Swift" />
+        </div>
+
+        <div class="form-group">
+          <label for="year">Year of Manufacture:</label>
+          <input 
+            type="number" 
+            id="year" 
+            name="year" 
+            required 
+            min="1900" 
+            max="2024" 
+            placeholder="e.g., 2020" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="chassis_number">Chassis Number:</label>
+          <input 
+            type="text" 
+            id="chassis_number" 
+            name="chassis_number" 
+            required 
+            placeholder="Enter 17-character chassis number"
+            oninput="validateChassisNumber(this)"
+            pattern="[A-Z0-9]{17}"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="mileage">Odometer Reading (KM):</label>
+          <input 
+            type="number" 
+            id="mileage" 
+            name="mileage" 
+            required 
+            min="0" 
+            placeholder="Enter current kilometer reading" 
+          />
+        </div>
+
+       
+        <button type="submit" class="submit-btn">View Plans</button>
+      </form>
+    </div>
+  </body>
+</html>
